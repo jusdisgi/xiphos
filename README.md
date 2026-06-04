@@ -1,6 +1,6 @@
 # Slim Splaydy
 
-This is the real Slim Splaydy. All the other Slim Splaydies are just imitating.
+This is the real Slim Splaydy. All the other Slim Splaydies are just imitating...
 
 It's a 34-key split ergo layout with a bit of splay and quite a bit of stagger, using Kailh PG1316S ultra-low-profile switches. The result should be extemely slim. I'm using a nice!nano controller, SMD to the board upside down with a cutout for the components, so it chould only be 1.6mm above the PCB surface. The PCB is also cut away where the battery goes, and the case includes a battery holder, allowing up to a 3.0mm battery. The case also has holes for magnets to sit just below the surface, allowing the two sides to magnetically clasp together for transport. When closed up this way the two halves should come in around 8mm thick.
 
