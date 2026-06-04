@@ -1,10 +1,10 @@
 meta:
   engine: 4.1.0
-  name: SlimSplaydy
+  name: xiphos
   version: 0.1
-  ref: &kb_ref "SlimSplaydy v.03"
+  ref: &kb_ref "xiphos v0.1"
   author: huntercook
-  url: &kb_url https://github.com/jusdisgi/SlimSplaydy
+  url: &kb_url https://github.com/jusdisgi/xiphos
   footprint: &switch_footprint "switch_pg1316s"
   switch:
     $extends: presets.pg1316s
@@ -144,7 +144,7 @@ points:
         spread: ks
       anchor:
         rotate: hand_rotation
-        #shift: [60,-160] # Fix KiCad placement
+        shift: [97.5, -166.3] # Center board on A3 page (board bbox center -> 210,148.5)
       columns:
         pinky:
         ring:
@@ -187,6 +187,19 @@ points:
             shift: [3,-2]
       rows:
         fan:
+
+    # Single outboard pinky key, intended as a SHIFT key (xiphos addition,
+    # takes the board from 34 to 36 keys). Sits one column-spread outboard of
+    # the pinky home key, dropped a few mm to suit the natural pinky reach.
+    # Inherits the pinky column's orientation by anchoring to finger_pinky_home.
+    shift:
+      anchor:
+        ref: finger_pinky_home
+        shift: [-ks, -3]
+      columns:
+        outer:
+      rows:
+        mid:
 
 # Helper points
 
@@ -233,10 +246,10 @@ points:
       anchor:
         - ref: finger_pinky_bottom
           shift: [-10,-10.7]
-    m1_14:      
+    m1_14:
       anchor:
-        - ref: finger_pinky_home
-          shift: [-11,0]
+        - ref: shift_outer_mid
+          shift: [-10,0]
     #Top Left Corner
     m2_15:      
       anchor:
@@ -274,6 +287,10 @@ outlines:
           shift: [-12.5,-12.5]
         - ref: finger_pinky_bottom
           shift: [-12.5,-12.5]
+        - ref: shift_outer_mid
+          shift: [-12.5,-12.5]
+        - ref: shift_outer_mid
+          shift: [-12.5,12]
         - ref: finger_pinky_top
           shift: [-12.5,12]
         - ref: finger_middle_top
@@ -324,6 +341,10 @@ outlines:
           shift: [-12.5,-12.5]
         - ref: mirror_finger_pinky_bottom
           shift: [-12.5,-12.5]
+        - ref: mirror_shift_outer_mid
+          shift: [-12.5,-12.5]
+        - ref: mirror_shift_outer_mid
+          shift: [-12.5,12]
         - ref: mirror_finger_pinky_top
           shift: [-12.5,12]
         - ref: mirror_finger_middle_top
@@ -394,12 +415,12 @@ outlines:
       expand: case_wall_thickness
   case_keycuts_left:
     - what: rectangle
-      where: /^finger|^thumb/
+      where: /^finger|^thumb|^shift/
       size: [ks,kp]
   keycap_outlines_left:
     - what: rectangle
       fillet: 2
-      where: /^finger|^thumb/ 
+      where: /^finger|^thumb|^shift/
       size: [keycw, keych]
   _m1_screws:
     - what: circle
@@ -439,71 +460,89 @@ outlines:
       name: _m2_nuts
 
 pcbs:
-# The "real" pcb file is just called slimsplaydy_left.kicad.pcb 
-# without the unrouted part. But this helps me not accidentally
-# overwrite files that I have worked on in kicad doing routing and such.
-  slimsplaydy_left_unrouted: 
+# ONE combined board: both halves on a single PCB as two separate board outlines
+# (left + right). Each half is electrically independent (its own nice!nano +
+# battery); nets are namespaced L_ / R_ so the halves never collide on shared
+# rails (GND/RAW/3V3/BAT_P/RST) and the combined netlist/BOM is unambiguous.
+#
+# Generated as xiphos_unrouted.kicad_pcb; copy to xiphos.kicad_pcb to route
+# (keeps routing safe from regen overwrites).
+#
+# Deterministic refs (left group first): S1-S18 = left keys, S19-S36 = right;
+# MCU1/CONN1/PWR1/RST1/MAG1 = left, *2 = right; MH1-30 = mounting holes.
+  xiphos_unrouted:
     template: kicad8
-    outlines: 
-      main:
+    outlines:
+      left:
         outline: board_left
+      right:
+        outline: board_right
     footprints:
-      mcu:
+
+# ===== LEFT HALF (split central) : L_ nets =====
+      mcu_left:
           what: mcu_nice_nano_smd
           where:
             ref: finger_inner_top
             shift: [19,-5.8]
           params:
             reverse_mount: true
-            P1: finger_inner_home
+            P1: L_finger_inner_home
             P1_label: D1
-            P0: D0
+            P0: L_shift_outer_mid
             P0_label: D0
-            P2: finger_pinky_bottom
+            P2: L_finger_pinky_bottom
             P2_label: D2
-            P3: finger_ring_bottom
+            P3: L_finger_ring_bottom
             P3_label: D3
-            P4: finger_middle_bottom
+            P4: L_finger_middle_bottom
             P4_label: D4
-            P5: finger_index_bottom
+            P5: L_finger_index_bottom
             P5_label: D5
-            P6: finger_inner_bottom
+            P6: L_finger_inner_bottom
             P6_label: D6
-            P7: finger_pinky_top
+            P7: L_finger_pinky_top
             P7_label: D7
-            P8: thumb_tucky_fan
-            P8_label: D8            
-            P9: thumb_reachy_fan
+            P8: L_thumb_tucky_fan
+            P8_label: D8
+            P9: L_thumb_reachy_fan
             P9_label: D9
-            P10: finger_index_home
+            P10: L_finger_index_home
             P10_label: D10
-            P16: finger_middle_home
+            P16: L_finger_middle_home
             P16_label: D16
-            P14: finger_ring_home
+            P14: L_finger_ring_home
             P14_label: D14
-            P15: finger_pinky_home
+            P15: L_finger_pinky_home
             P15_label: D15
-            P18: finger_ring_top
+            P18: L_finger_ring_top
             P18_label: D18
-            P19: finger_middle_top
+            P19: L_finger_middle_top
             P19_label: D19
-            P20: finger_index_top
+            P20: L_finger_index_top
             P20_label: D20
-            P21: finger_inner_top
+            P21: L_finger_inner_top
             P21_label: D21
-            VCC: 3V3
+            RAW: L_RAW
+            GND: L_GND
+            RST: L_RST
+            P101: L_P101
+            P102: L_P102
+            P107: L_P107
+            VCC: L_3V3
             VCC_label: 3V3
             mcu_3dmodel_filename: '\${INFUSED_KIM_MODELS}/Nice_Nano_V2.step'
             mcu_3dmodel_xyz_rotation: [0, 0, 0]
             mcu_3dmodel_xyz_offset: [0, 0, 0]
-      key_switches:
+      key_switches_left:
         what: *switch_footprint
-        where: /^finger|^thumb/
+        where: /^finger|^thumb|^shift/
         adjust:
           rotate: switch_rotation
         params:
-          from: "{{name}}"
-          to: GND
+          from: "L_{{zone.name}}_{{col.name}}_{{row}}"
+          to: L_GND
+          mp_net: L_GND
           reversible: false
           side: 'F'
           large_p1: false
@@ -520,123 +559,125 @@ pcbs:
           mp_gnd: true
           key_3dmodel_filename: '\${HLC_MODELS}/PG1316S.STEP'
           key_3dmodel_xyz_offset: [-4.25, -7.25, -10.25]
-          
-      battery_switch:
+      battery_switch_left:
         what: power_switch_smd_side
-        where: 
+        where:
           ref: finger_inner_bottom
           shift: [30.75,-12]
           rotate: 0
         params:
-          from: RAW
-          to: BAT_P
+          from: L_RAW
+          to: L_BAT_P
           invert_behavior: true
           switch_3dmodel_filename: '\${INFUSED_KIM_MODELS}/Switch_Power.step'
           switch_3dmodel_xyz_rotation: [-90, 0, -90]
-      reset_switch:
+      reset_switch_left:
         what: reset_switch_smd_side
-        where: 
+        where:
           ref: finger_inner_bottom
           shift: [30,-1]
           rotate: -90
         params:
-          from: GND
-          to: RST
+          from: L_GND
+          to: L_RST
           reset_switch_3dmodel_filename: '\${INFUSED_KIM_MODELS}/Switch_Reset.step'
           reset_switch_3dmodel_xyz_rotation: [-90, 0, 180]
-      battcon:
-      # Not to be confused with the regular EZMate (not Plus) which has different pitch!
-      # For that other connector use the ceoloide footprint.
-        what: conn_molex_pico_ezmate_plus_1x02 
+      battcon_left:
+      # Regular Molex Pico-EZmate, 1.20mm pitch (ceoloide). Placement verified
+      # vs hand-placed connector in slimsplaydy_both_close: rotate 0, shift
+      # ~[5,-12] to <0.5mm. No 3D model in this footprint.
+        what: battery_connector_molex_pico_ezmate_1x02
         params:
-          conn_3dmodel_filename: '\${HLC_MODELS}/Molex_Pico_EZMate_Plus_1x02.stp'
-          conn_3dmodel_xyz_offset: [0.5, -2.5, 0]
+          BAT_P: L_BAT_P
+          BAT_N: L_GND
         where:
           ref: finger_middle_bottom
           shift: [5,-12]
           rotate: 0
-      magring:
+      magring_left:
         what: magsafe_silkscreen
-        where: 
+        where:
           ref: finger_index_home
           shift: [-8,0]
         params:
           side: B
-      m1_screwholes:
-        what: mounting_hole_npth 
+      m1_screwholes_left:
+        what: mounting_hole_npth
         where: /^m1/
         params:
           hole_size: m1_screw_diameter
           hole_drill: m1_screw_diameter
-      m2_screwholes:
-        what: mounting_hole_npth 
+      m2_screwholes_left:
+        what: mounting_hole_npth
         where: /^m2/
         params:
           hole_size: m2_screw_diameter
           hole_drill: m2_screw_diameter
 
-  slimsplaydy_right_unrouted: 
-    template: kicad8
-    outlines: 
-      main:
-        outline: board_right
-    footprints:
-      mcu:
+# ===== RIGHT HALF (split peripheral) : R_ nets =====
+      mcu_right:
           what: mcu_nice_nano_smd
           where:
             ref: mirror_finger_inner_top
             shift: [19,-5.8]
           params:
             reverse_mount: true
-            P1: mirror_finger_inner_home
+            P1: R_finger_inner_home
             P1_label: D1
-            P0: D0
+            P0: R_shift_outer_mid
             P0_label: D0
-            P2: mirror_finger_pinky_bottom
+            P2: R_finger_pinky_bottom
             P2_label: D2
-            P3: mirror_finger_ring_bottom
+            P3: R_finger_ring_bottom
             P3_label: D3
-            P4: mirror_finger_middle_bottom
+            P4: R_finger_middle_bottom
             P4_label: D4
-            P5: mirror_finger_index_bottom
+            P5: R_finger_index_bottom
             P5_label: D5
-            P6: mirror_finger_inner_bottom
+            P6: R_finger_inner_bottom
             P6_label: D6
-            P7: mirror_finger_pinky_top
+            P7: R_finger_pinky_top
             P7_label: D7
-            P8: mirror_thumb_tucky_fan
-            P8_label: D8            
-            P9: mirror_thumb_reachy_fan
+            P8: R_thumb_tucky_fan
+            P8_label: D8
+            P9: R_thumb_reachy_fan
             P9_label: D9
-            P10: mirror_finger_index_home
+            P10: R_finger_index_home
             P10_label: D10
-            P16: mirror_finger_middle_home
+            P16: R_finger_middle_home
             P16_label: D16
-            P14: mirror_finger_ring_home
+            P14: R_finger_ring_home
             P14_label: D14
-            P15: mirror_finger_pinky_home
+            P15: R_finger_pinky_home
             P15_label: D15
-            P18: mirror_finger_ring_top
+            P18: R_finger_ring_top
             P18_label: D18
-            P19: mirror_finger_middle_top
+            P19: R_finger_middle_top
             P19_label: D19
-            P20: mirror_finger_index_top
+            P20: R_finger_index_top
             P20_label: D20
-            P21: mirror_finger_inner_top
+            P21: R_finger_inner_top
             P21_label: D21
-            VCC: 3V3
+            RAW: R_RAW
+            GND: R_GND
+            RST: R_RST
+            P101: R_P101
+            P102: R_P102
+            P107: R_P107
+            VCC: R_3V3
             VCC_label: 3V3
             mcu_3dmodel_filename: '\${INFUSED_KIM_MODELS}/Nice_Nano_V2.step'
             mcu_3dmodel_xyz_rotation: [0, 0, 0]
             mcu_3dmodel_xyz_offset: [0, 0, 0]
-      key_switches:
+      key_switches_right:
         what: *switch_footprint
-        where: /^mirror_finger|^mirror_thumb/
+        where: /^mirror_finger|^mirror_thumb|^mirror_shift/
         adjust:
           rotate: switch_rotation
         params:
-          from: "{{name}}"
-          to: GND
+          from: "R_{{zone.name}}_{{col.name}}_{{row}}"
+          to: R_GND
+          mp_net: R_GND
           reversible: false
           side: 'F'
           large_p1: false
@@ -653,56 +694,53 @@ pcbs:
           mp_gnd: true
           key_3dmodel_filename: '\${HLC_MODELS}/PG1316S.STEP'
           key_3dmodel_xyz_offset: [-4.25, -7.25, -10.25]
-          
-      battery_switch:
+      battery_switch_right:
         what: power_switch_smd_side
-        where: 
+        where:
           ref: mirror_finger_inner_bottom
           shift: [30.75,-12]
           rotate: 180
         params:
-          from: RAW
-          to: BAT_P
+          from: R_RAW
+          to: R_BAT_P
           invert_behavior: false
           switch_3dmodel_filename: '\${INFUSED_KIM_MODELS}/Switch_Power.step'
           switch_3dmodel_xyz_rotation: [-90, 0, -90]
-      reset_switch:
+      reset_switch_right:
         what: reset_switch_smd_side
-        where: 
+        where:
           ref: mirror_finger_inner_bottom
           shift: [30,-1]
           rotate: -90
         params:
-          from: GND
-          to: RST
+          from: R_GND
+          to: R_RST
           reset_switch_3dmodel_filename: '\${INFUSED_KIM_MODELS}/Switch_Reset.step'
           reset_switch_3dmodel_xyz_rotation: [-90, 0, 180]
-      battcon:
-      # Not to be confused with the regular EZMate (not Plus) which has different pitch!
-      # For that other connector use the ceoloide footprint.
-        what: conn_molex_pico_ezmate_plus_1x02 
+      battcon_right:
+        what: battery_connector_molex_pico_ezmate_1x02
         params:
-          conn_3dmodel_filename: '\${HLC_MODELS}/Molex_Pico_EZMate_Plus_1x02.stp'
-          conn_3dmodel_xyz_offset: [0.5, -2.5, 0]
+          BAT_P: R_BAT_P
+          BAT_N: R_GND
         where:
           ref: mirror_finger_middle_bottom
           shift: [5,-12]
           rotate: 0
-      magring:
+      magring_right:
         what: magsafe_silkscreen
-        where: 
+        where:
           ref: mirror_finger_index_home
           shift: [-8,0]
         params:
           side: B
-      m1_screwholes:
-        what: mounting_hole_npth 
+      m1_screwholes_right:
+        what: mounting_hole_npth
         where: /^mirror_m1/
         params:
           hole_size: m1_screw_diameter
           hole_drill: m1_screw_diameter
-      m2_screwholes:
-        what: mounting_hole_npth 
+      m2_screwholes_right:
+        what: mounting_hole_npth
         where: /^mirror_m2/
         params:
           hole_size: m2_screw_diameter
