@@ -598,7 +598,7 @@ pcbs:
         what: magsafe_silkscreen
         where:
           ref: finger_index_home
-          shift: [-8,0]
+          shift: [-13,3]
         params:
           side: B
       m1_screwholes_left:
@@ -730,7 +730,7 @@ pcbs:
         what: magsafe_silkscreen
         where:
           ref: mirror_finger_index_home
-          shift: [-8,0]
+          shift: [-13,3]
         params:
           side: B
       m1_screwholes_right:
