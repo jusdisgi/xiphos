@@ -1,6 +1,22 @@
-// Stolen from larssont
-// Only change was to move the drawing from Usr.Drwgs to B.SilkS
-// I want it for visual cue, not fabrication information
+// Stolen from larssont, then extended by jusdisgi.
+//
+// Draws the MagSafe ring two ways:
+//   1. A hatched B.SilkS ring as a visual cue (original behaviour).
+//   2. (optional, on by default) a REAL copper keepout / rule-area annulus on
+//      the magnet-side copper layer, so the back-milled magnet pocket stays
+//      clear of copper and the pour/traces/vias know to avoid it.
+//
+// Notes for a back-milled (blind) pocket on a 2-layer board:
+//   - The keepout sits on the magnet side only (default B.Cu). That clears the
+//     back GND pour, tracks, and through-vias from the milled band (a via would
+//     be sheared by the pocket). It deliberately does NOT touch the front layer,
+//     so the front GND pour stays continuous across the ring and the keys inside
+//     the ring hole still reach GND. The GND vias of the keys inside the ring
+//     hole stitch the centre island to the front plane; keys sitting ON the band
+//     must drop their GND vias just off the band (vias are disallowed in it).
+//   - keepout_margin grows the copper-clear band past the magnets so the pour
+//     doesn't sit right on the ring / pocket wall. Silk stays at true diameters.
+//   - pads are left allowed (the switches that sit over the band are front-side).
 
 module.exports = {
     params: {
@@ -9,6 +25,14 @@ module.exports = {
       inner_diameter: 44.8,
       outer_diameter: 55.2,
       precision: 0.1, // Maximum segment length in mm
+      // Real copper keepout (rule area) under the ring:
+      keepout: true,            // emit the copper keepout annulus
+      keepout_tracks: true,     // disallow tracks in the magnet band
+      keepout_vias: true,       // disallow vias (a back-milled pocket shears them)
+      keepout_pads: false,      // leave pads allowed (front-side switches overlap the band)
+      keepout_copperpour: true, // clear copper pour in the band on the magnet-side layer
+      keepout_margin: 0.5,      // grow the keepout this far past the ring (out & in) so
+                                // the pour isn't sitting right on the magnets / pocket wall
     },
     body: p => {
       const circle = (r, precision) => {
@@ -21,11 +45,25 @@ module.exports = {
         });
       };
 
-      const zone =
+      // annulus outline = outer ring followed by inner ring (even-odd fill)
+      const ring_pts = (outer_r, inner_r) =>
+        `${circle(outer_r, p.precision)}
+                    ${circle(inner_r, p.precision)}`;
+
+      // silk = true magnet dimensions; keepout = grown by keepout_margin
+      const silk_pts = ring_pts(p.outer_diameter / 2, p.inner_diameter / 2);
+      const keepout_pts = ring_pts(
+        p.outer_diameter / 2 + p.keepout_margin,
+        Math.max(0, p.inner_diameter / 2 - p.keepout_margin)
+      );
+
+      const allow = b => (b ? 'not_allowed' : 'allowed');
+
+      const silk =
         `(zone
             (net 0)
             (net_name "")
-            (layer "B.SilkS")
+            (layer "${p.side}.SilkS")
             (name "Magsafe Zone")
             (hatch full 0.5)
             (min_thickness 0.25)
@@ -39,11 +77,31 @@ module.exports = {
             )
             (polygon
                 (pts
-                    ${circle(p.outer_diameter / 2, p.precision)}
-                    ${circle(p.inner_diameter / 2, p.precision)}
+                    ${silk_pts}
                 )
             )
         )`
+
+      const keepout = p.keepout ?
+        `(zone
+            (net 0)
+            (net_name "")
+            (layer "${p.side}.Cu")
+            (name "Magsafe Keepout")
+            (hatch edge 0.5)
+            (keepout
+                (tracks ${allow(p.keepout_tracks)})
+                (vias ${allow(p.keepout_vias)})
+                (pads ${allow(p.keepout_pads)})
+                (copperpour ${allow(p.keepout_copperpour)})
+                (footprints allowed)
+            )
+            (polygon
+                (pts
+                    ${keepout_pts}
+                )
+            )
+        )` : '';
 
         return `
             (footprint "magsafe"
@@ -56,7 +114,8 @@ module.exports = {
                     (effects (font (size 1 1) (thickness 0.15)))
                 )
                 (attr board_only)
-                ${zone}
+                ${silk}
+                ${keepout}
             )`
     }
 };

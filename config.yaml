@@ -201,76 +201,34 @@ points:
       rows:
         mid:
 
-# Helper points
-
-# These screw holes are numbered as one sequence regardless of size. 
-# That way if I change the size of one I don't have to re-number the 
-# whole list. Ask me how I came up with this idea...
-    
-    #Top Right Corner
-    m2_1:
+# Mounting holes: 5 per half, all M2 (single size). Four pin the perimeter
+# (top-left/pinky, top-right/MCU, bottom-left/pinky, thumb cluster); one sits in
+# the center to keep the switch field from bowing. The `mirror` block below
+# reflects these to mirror_m2_* for the right half.
+    m2_1:   # top-left, outboard of pinky top
+      anchor:
+        - ref: finger_pinky_top
+          shift: [-11.8,2.4]
+    m2_2:   # top-right, between MCU slot and right edge
       anchor:
         - ref: finger_inner_top
           shift: [30.8,8]
-    m2_3:
+    m2_3:   # bottom-left, pinky corner (nudged per KiCad: -1,-1)
       anchor:
-        - ref: finger_inner_bottom
-          shift: [19,8]
-    m2_4:
-      anchor:
-        - ref: finger_inner_bottom
-          shift: [11.5,-14]
-    m2_5:
-      anchor:
-        - ref: finger_inner_bottom
-          shift: [30,-22]
-    # Bottom Right Corner
-    m1_6:      
-      anchor:
-        - ref: thumb_reachy_fan
-          shift: [10,-10.5]
-    m2_8:      
+        - ref: finger_pinky_bottom
+          shift: [-10.851,-9.571]
+    m2_4:   # thumb cluster, bottom-right (moved per KiCad: 15,5)
       anchor:
         - ref: thumb_tucky_fan
-          shift: [-6,-11]
-    m2_10:      
+          shift: [9.783,-11.947]
+    m2_5:   # center, below middle column / above battery slot
       anchor:
         - ref: finger_middle_bottom
           shift: [-6,-13]
-    m2_12:      
-      anchor:
-        - ref: finger_middle_bottom
-          shift: [-27,-32]
-    #Bottom Left Corner
-    m2_13:      
-      anchor:
-        - ref: finger_pinky_bottom
-          shift: [-10,-10.7]
-    m1_14:
-      anchor:
-        - ref: shift_outer_mid
-          shift: [-10,0]
-    #Top Left Corner
-    m2_15:      
-      anchor:
-        - ref: finger_pinky_top
-          shift: [-10,10.5]
-    m2_16:      
-      anchor:
-        - ref: finger_ring_top
-          shift: [-12,5]
-    m1_17:      
+    m2_6:   # top-center, above middle column
       anchor:
         - ref: finger_middle_top
-          shift: [0,10.3]
-    m2_18:      
-      anchor:
-        - ref: finger_index_top
-          shift: [8,11]
-    m1_19:      
-      anchor:
-        - ref: finger_inner_top
-          shift: [6,10.5]
+          shift: [-10.799,6.953]
 
   mirror:
     ref: thumb_reachy_fan
@@ -281,29 +239,33 @@ outlines:
     - what: polygon
       operation: stack
       points:
+        - ref: finger_inner_top
+          shift: [33,10.7]
+        - ref: finger_inner_bottom
+          shift: [33,-26.2]
         - ref: thumb_reachy_fan
           shift: [12.5,-12.5]
         - ref: thumb_tucky_fan
           shift: [-12.5,-12.5]
         - ref: finger_pinky_bottom
           shift: [-12.5,-12.5]
+        # --- Angular top + outer-left perimeter (replaces the old ellipse).
+        # Vertices hug ~3mm outside the keycaps; global fillet softens corners.
         - ref: shift_outer_mid
-          shift: [-12.5,-12.5]
+          shift: [-11.002,-9.47]    # outer-left, below shift key
         - ref: shift_outer_mid
-          shift: [-12.5,12]
+          shift: [-11,9.151]        # leftmost point, beside shift key
         - ref: finger_pinky_top
-          shift: [-12.5,12]
+          shift: [-9.865,10.415]    # top-left, above pinky
+        - ref: finger_ring_top
+          shift: [-9.268,10.751]    # top, above ring
         - ref: finger_middle_top
-          shift: [-10,12]
+          shift: [-8.538,11]        # top, middle column (left)
         - ref: finger_middle_top
-          shift: [10,12]
+          shift: [8.292,11]         # top, middle column (right)
         - ref: finger_inner_top
-          shift: [13,10.7]
-        - ref: finger_inner_top
-          shift: [33,10.7]
-        - ref: finger_inner_bottom
-          shift: [33,-26.2]
-      fillet: 3
+          shift: [12.5,10.21]       # steep drop to MCU slot top-left corner (opens the notch)
+      fillet: 1.5
   mcu_slot_left:
     - what: polygon
       operation: stack
@@ -335,29 +297,32 @@ outlines:
     - what: polygon
       operation: stack
       points:
+        - ref: mirror_finger_inner_top
+          shift: [33,10.7]
+        - ref: mirror_finger_inner_bottom
+          shift: [33,-26.2]
         - ref: mirror_thumb_reachy_fan
           shift: [12.5,-12.5]
         - ref: mirror_thumb_tucky_fan
           shift: [-12.5,-12.5]
         - ref: mirror_finger_pinky_bottom
           shift: [-12.5,-12.5]
+        # --- Angular top + outer-left perimeter (mirror of shape_left).
         - ref: mirror_shift_outer_mid
-          shift: [-12.5,-12.5]
+          shift: [-11.002,-9.47]    # outer-left, below shift key
         - ref: mirror_shift_outer_mid
-          shift: [-12.5,12]
+          shift: [-11,9.151]        # leftmost point, beside shift key
         - ref: mirror_finger_pinky_top
-          shift: [-12.5,12]
+          shift: [-9.865,10.415]    # top-left, above pinky
+        - ref: mirror_finger_ring_top
+          shift: [-9.268,10.751]    # top, above ring
         - ref: mirror_finger_middle_top
-          shift: [-10,12]
+          shift: [-8.538,11]        # top, middle column (left)
         - ref: mirror_finger_middle_top
-          shift: [10,12]
+          shift: [8.292,11]         # top, middle column (right)
         - ref: mirror_finger_inner_top
-          shift: [13,10.7]
-        - ref: mirror_finger_inner_top
-          shift: [33,10.7]
-        - ref: mirror_finger_inner_bottom
-          shift: [33,-26.2]
-      fillet: 3
+          shift: [12.5,10.21]       # steep drop to MCU slot top-left corner (opens the notch)
+      fillet: 1.5
   mcu_slot_right:
     - what: polygon
       operation: stack
@@ -422,42 +387,19 @@ outlines:
       fillet: 2
       where: /^finger|^thumb|^shift/
       size: [keycw, keych]
-  _m1_screws:
-    - what: circle
-      where: /^m1/
-      radius: m1_screw_radius
-  _m2_screws:
+  # Helper outlines for case DXF export (left half only, like before).
+  screws:
     - what: circle
       where: /^m2/
       radius: m2_screw_radius
-  screws:
-    - name: _m1_screws
-    - operation: add
-      name: _m2_screws
-  _m1_screw_heads:
-    - what: circle
-      where: /^m1/
-      radius: m1_screw_head_radius
-  _m2_screw_heads:
+  screw_heads:
     - what: circle
       where: /^m2/
       radius: m2_screw_head_radius
-  screw_heads:
-    - name: _m1_screw_heads
-    - operation: add
-      name: _m2_screw_heads
-  _m1_nuts:
-    - what: circle
-      where: /^m1/
-      radius: m1_nut_radius
-  _m2_nuts:
+  nuts:
     - what: circle
       where: /^m2/
       radius: m2_nut_radius
-  nuts:
-    - name: _m1_nuts
-    - operation: add
-      name: _m2_nuts
 
 pcbs:
 # ONE combined board: both halves on a single PCB as two separate board outlines
@@ -601,12 +543,6 @@ pcbs:
           shift: [-13,3]
         params:
           side: B
-      m1_screwholes_left:
-        what: mounting_hole_npth
-        where: /^m1/
-        params:
-          hole_size: m1_screw_diameter
-          hole_drill: m1_screw_diameter
       m2_screwholes_left:
         what: mounting_hole_npth
         where: /^m2/
@@ -733,12 +669,6 @@ pcbs:
           shift: [-13,3]
         params:
           side: B
-      m1_screwholes_right:
-        what: mounting_hole_npth
-        where: /^mirror_m1/
-        params:
-          hole_size: m1_screw_diameter
-          hole_drill: m1_screw_diameter
       m2_screwholes_right:
         what: mounting_hole_npth
         where: /^mirror_m2/
